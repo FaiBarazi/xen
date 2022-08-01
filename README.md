@@ -58,3 +58,5 @@ to test the service run these in the terminal:
 The docker compose file can be mapped to a cloudformation template/instructions through creating a docker ECS context. 
 refer to : https://www.docker.com/blog/docker-compose-from-local-to-amazon-ecs/
 
+To deploy on multiple machine swarm mode could be used: https://docs.docker.com/engine/swarm/
+
