@@ -1,6 +1,5 @@
 version: '3' # refer to : https://docs.docker.com/compose/compose-file/
 
-
 services:
   flask:
     build:
@@ -26,10 +25,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    # flask should connect to both the frontend and backend service
-    # front-end being Nginx and back being postgres
     networks:
-      # - frontend
       - backend
 
   # Mongodb service definition
@@ -56,31 +52,8 @@ services:
         retries: 5
         start_period: 80s
 
-  # webserver:
-  #   build:
-  #     context: nginx
-  #     dockerfile: Dockerfile
-  #   image: nginx:latest
-  #   container_name: webserver
-  #   restart: unless-stopped
-  #   environment:
-  #     APP_ENV: "dev"
-  #     APP_NAME: "webserver"
-  #     APP_DEBUG: "True"
-  #     SERVICE_NAME: "webserver"
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - nginxdata:/var/log/nginx
-  #   depends_on:
-  #     - flask
-  #   networks:
-  #     - frontend
 # Allows the network containers to connect with eact other.
 networks:
-  # frontend:
-  #   driver: bridge
   backend:
     driver: bridge
 
@@ -90,5 +63,3 @@ volumes:
     driver: local
   appdata:
     driver: local
-  # nginxdata:
-  #   driver: local
