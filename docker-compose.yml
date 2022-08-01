@@ -1,0 +1,94 @@
+version: '3' # refer to : https://docs.docker.com/compose/compose-file/
+
+
+services:
+  flask:
+    build:
+      context: app
+      dockerfile: Dockerfile
+    container_name: flask
+    image: python:3.9-alpine
+    restart: unless-stopped
+    env_file:
+      - db/db.env
+    environment:
+      APP_ENV: "dev"
+      APP_DEBUG: "True"
+      APP_PORT: 5000
+    ports:
+      - "80:5000"
+    volumes:
+      - ./app:/var/www
+
+    # Depends on postgres, with a service healthy condition.
+    # this insures that postgres has finished running and building the DB
+    # to avoid error logs from the flask container.
+    depends_on:
+      database:
+        condition: service_healthy
+    # flask should connect to both the frontend and backend service
+    # front-end being Nginx and back being postgres
+    networks:
+      # - frontend
+      - backend
+
+  # Mongodb service definition
+  database:
+      build:
+        context: db
+        dockerfile: Dockerfile
+      container_name: postgres
+      image: postgres:13-alpine3.16
+      env_file:
+        - db/db.env
+      ports:
+        - 5432:5432
+      volumes:
+        - databasedata:/var/lib/postgresql
+      networks:
+        - backend
+      # Make sure that the DB is running and healthy
+      # before starting flask to avoid log errors (racing)
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        interval: 5s
+        timeout: 60s
+        retries: 5
+        start_period: 80s
+
+  # webserver:
+  #   build:
+  #     context: nginx
+  #     dockerfile: Dockerfile
+  #   image: nginx:latest
+  #   container_name: webserver
+  #   restart: unless-stopped
+  #   environment:
+  #     APP_ENV: "dev"
+  #     APP_NAME: "webserver"
+  #     APP_DEBUG: "True"
+  #     SERVICE_NAME: "webserver"
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - nginxdata:/var/log/nginx
+  #   depends_on:
+  #     - flask
+  #   networks:
+  #     - frontend
+# Allows the network containers to connect with eact other.
+networks:
+  # frontend:
+  #   driver: bridge
+  backend:
+    driver: bridge
+
+# Persisting database to local
+volumes:
+  databasedata:
+    driver: local
+  appdata:
+    driver: local
+  # nginxdata:
+  #   driver: local
