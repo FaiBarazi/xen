@@ -4,6 +4,7 @@ This is an exercise to create a containerized system of a flask service and post
 * Repo content
 * Setup
 * Test Calls
+* Deploy to amazon
 
 ## Repo Content:
 * **docker-compose.yml**: Compose to orchistrate the creation of the containers. 
@@ -53,4 +54,7 @@ to test the service run these in the terminal:
       "price": 1154.3333333333333
     },...
  ```
+## Deploy to Amazon
+The docker compose file can be mapped to a cloudformation template/instructions through creating a docker ECS context. 
+refer to : https://www.docker.com/blog/docker-compose-from-local-to-amazon-ecs/
 
